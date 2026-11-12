@@ -132,10 +132,10 @@ a{color:var(--accent2)}
 /* ===================== ДАННЫЕ ===================== */
 const KEY = 'crm_depil_v1';
 const DEF_SERVICES = [
-  ['Подмышки', 800, 20, 28], ['Бикини классическое', 1200, 30, 28], ['Глубокое бикини', 1800, 45, 28],
-  ['Голени', 1200, 30, 28], ['Ноги полностью', 2000, 60, 28], ['Руки до локтя', 900, 25, 28],
-  ['Руки полностью', 1300, 40, 28], ['Верхняя губа', 400, 10, 21], ['Живот (полоска)', 400, 10, 28],
-  ['Комплекс: глуб. бикини + подмышки + ноги', 3800, 90, 28]
+  ['Подмышки', 3000, 20, 28], ['Бикини классическое', 5000, 30, 28], ['Глубокое бикини', 8000, 45, 28],
+  ['Голени', 5000, 30, 28], ['Ноги полностью', 9000, 60, 28], ['Руки до локтя', 3500, 25, 28],
+  ['Руки полностью', 5000, 40, 28], ['Верхняя губа', 1500, 10, 21], ['Живот (полоска)', 1500, 10, 28],
+  ['Комплекс: глуб. бикини + подмышки + ноги', 17000, 90, 28]
 ];
 const EXP_CATS = ['Паста / сахар', 'Воск', 'Расходники', 'Аренда', 'Реклама', 'Обучение', 'Другое'];
 const SOURCES = ['Сарафан (подруга)', 'Instagram', 'ВКонтакте', 'Telegram', 'Авито', 'Яндекс/2ГИС карты', 'Онлайн-запись', 'Другое'];
@@ -161,7 +161,10 @@ function load() {
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) { const d = JSON.parse(raw); const def = defaultDb(); d.settings = Object.assign(def.settings, d.settings || {});
-      ['services', 'clients', 'visits', 'expenses', 'daysOff'].forEach(k => { if (!Array.isArray(d[k])) d[k] = def[k]; }); return d; }
+      ['services', 'clients', 'visits', 'expenses', 'daysOff'].forEach(k => { if (!Array.isArray(d[k])) d[k] = def[k]; });
+      if (!d.visits.length && d.services.some(s => s.name === 'Подмышки' && s.price === 800)) { // старые цены в рублях → тенге
+        const np = Object.fromEntries(DEF_SERVICES.map(x => [x[0], x[1]])); d.services.forEach(s => { if (np[s.name]) s.price = np[s.name]; }); }
+      return d; }
   } catch (e) { console.error(e); }
   return defaultDb();
 }
@@ -189,7 +192,7 @@ const fmtD = s => { const d = pd(s); return d.getDate() + ' ' + MON[d.getMonth()
 const fmtDW = s => DOW[pd(s).getDay()] + ', ' + fmtD(s);
 const t2m = t => { const [h, m] = String(t).split(':').map(Number); return h * 60 + (m || 0); };
 const m2t = m => pad(Math.floor(m / 60)) + ':' + pad(m % 60);
-const money = n => (Math.round(Number(n) || 0)).toLocaleString('ru-RU') + ' ₽';
+const money = n => (Math.round(Number(n) || 0)).toLocaleString('ru-RU') + ' ₸';
 const num = v => { const n = parseFloat(String(v).replace(',', '.').replace(/\s/g, '')); return isNaN(n) ? 0 : n; };
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toast.h); toast.h = setTimeout(() => t.style.display = 'none', 2600); }
 function plural(n, a, b, c) { n = Math.abs(n) % 100; const n1 = n % 10; if (n > 10 && n < 20) return c; if (n1 > 1 && n1 < 5) return b; if (n1 === 1) return a; return c; }
@@ -202,7 +205,7 @@ const lastDone = cid => { const l = visitsOf(cid).filter(v => v.status === 'done
 const nextPlanned = cid => visitsOf(cid).find(v => v.status === 'planned' && v.date >= today());
 function repeatFor(v) { const r = (v.services || []).map(id => sById(id)?.rep).filter(Boolean); return r.length ? Math.min(...r) : (db.settings.defaultRepeat || 28); }
 function firstName(c) { return (c?.name || '').trim().split(/\s+/)[0] || ''; }
-function normPhone(p) { let d = String(p || '').replace(/\D/g, ''); if (d.length === 11 && d[0] === '8') d = '7' + d.slice(1); if (d.length === 10 && d[0] === '9') d = '7' + d; return d; }
+function normPhone(p) { let d = String(p || '').replace(/\D/g, ''); if (d.length === 11 && d[0] === '8') d = '7' + d.slice(1); if (d.length === 10) d = '7' + d; return d; }
 function waLink(phone, text) { return 'https://wa.me/' + normPhone(phone) + (text ? '?text=' + encodeURIComponent(text) : ''); }
 function tgLink(tg) { return 'https://t.me/' + String(tg || '').replace(/^@/, '').replace(/^https?:\/\/t\.me\//, ''); }
 function fillTpl(tpl, c, v) {
@@ -321,7 +324,7 @@ function openVisit(id) {
   if (c.allergies) h += `<div class="alert">⚠ Аллергии: ${esc(c.allergies)}</div>`;
   if (c.contra) h += `<div class="alert">⚠ Противопоказания: ${esc(c.contra)}</div>`;
   if (v.status === 'planned') {
-    h += `<label>Оплачено, ₽</label><input id="paid" inputmode="decimal" value="${num(v.price)}">
+    h += `<label>Оплачено, ₸</label><input id="paid" inputmode="decimal" value="${num(v.price)}">
       <label>Заметка после процедуры (реакция кожи, что учесть)</label><textarea id="vnote">${esc(v.note || '')}</textarea>
       <div class="btns"><button class="btn ok" onclick="setStatus('${id}','done')">✅ Выполнено</button></div>
       <div class="btns"><button class="btn line" onclick="remindVisit('${id}')">💬 Напомнить о записи</button></div>
@@ -368,7 +371,7 @@ function openVisitForm(o) {
     <div id="newc" style="display:${cur.clientId ? 'none' : 'block'}"><div class="grid2"><div><label>Имя</label><input id="f_name" placeholder="Анна"></div><div><label>Телефон</label><input id="f_phone" type="tel" placeholder="+7…"></div></div></div>
     <div class="grid2"><div><label>Дата</label><input id="f_date" type="date" value="${cur.date}"></div><div><label>Время</label><select id="f_time">${timeOptions(cur.time)}</select></div></div>
     <label>Услуги</label><div id="f_svcs">${svcs.map(s => `<label class="chk"><input type="checkbox" value="${s.id}" ${cur.services.includes(s.id) ? 'checked' : ''} onchange="recalc()"><span>${esc(s.name)}</span><span class="p">${money(s.price)} · ${s.dur} мин</span></label>`).join('')}</div>
-    <div class="grid2"><div><label>Цена, ₽</label><input id="f_price" inputmode="decimal" value="${cur.price ?? ''}"></div><div><label>Длительность, мин</label><input id="f_dur" inputmode="numeric" value="${cur.dur ?? ''}"></div></div>
+    <div class="grid2"><div><label>Цена, ₸</label><input id="f_price" inputmode="decimal" value="${cur.price ?? ''}"></div><div><label>Длительность, мин</label><input id="f_dur" inputmode="numeric" value="${cur.dur ?? ''}"></div></div>
     <label>Метод</label><select id="f_method">${METHODS.map(m => `<option ${m === cur.method ? 'selected' : ''}>${m}</option>`).join('')}</select>
     <label>Комментарий</label><textarea id="f_note" placeholder="Например: первый раз, длина волос 5 мм">${esc(cur.note || '')}</textarea>
     <div class="btns"><button class="btn wide" onclick="saveVisit('${v ? v.id : ''}')">Сохранить</button></div>`;
@@ -618,7 +621,7 @@ VIEWS.stats = () => {
 };
 function openExpense(id) {
   const e = id ? db.expenses.find(x => x.id === id) : { date: today(), cat: EXP_CATS[0], amount: '', note: '' };
-  openSheet(id ? 'Расход' : 'Новый расход', `<div class="grid2"><div><label>Дата</label><input id="e_date" type="date" value="${e.date}"></div><div><label>Сумма, ₽</label><input id="e_amt" inputmode="decimal" value="${e.amount}"></div></div>
+  openSheet(id ? 'Расход' : 'Новый расход', `<div class="grid2"><div><label>Дата</label><input id="e_date" type="date" value="${e.date}"></div><div><label>Сумма, ₸</label><input id="e_amt" inputmode="decimal" value="${e.amount}"></div></div>
     <label>Категория</label><select id="e_cat">${EXP_CATS.map(c => `<option ${c === e.cat ? 'selected' : ''}>${c}</option>`).join('')}</select>
     <label>Комментарий</label><input id="e_note" value="${esc(e.note)}" placeholder="Например: паста Gloria 1,5 кг">
     <div class="btns"><button class="btn" onclick="saveExpense('${id || ''}')">Сохранить</button>${id ? `<button class="btn bad" onclick="delExpense('${id}')">Удалить</button>` : ''}</div>`);
@@ -652,7 +655,7 @@ function openServices() {
 function openService(id) {
   const s = id ? sById(id) : { name: '', price: '', dur: 30, rep: db.settings.defaultRepeat, active: true };
   openSheet(id ? 'Услуга' : 'Новая услуга', `<label>Название</label><input id="s_name" value="${esc(s.name)}">
-    <div class="grid2"><div><label>Цена, ₽</label><input id="s_price" inputmode="decimal" value="${s.price}"></div><div><label>Длительность, мин</label><input id="s_dur" inputmode="numeric" value="${s.dur}"></div></div>
+    <div class="grid2"><div><label>Цена, ₸</label><input id="s_price" inputmode="decimal" value="${s.price}"></div><div><label>Длительность, мин</label><input id="s_dur" inputmode="numeric" value="${s.dur}"></div></div>
     <label>Через сколько дней звать на повтор</label><input id="s_rep" inputmode="numeric" value="${s.rep}">
     <label class="chk" style="margin-top:12px"><input type="checkbox" id="s_act" ${s.active ? 'checked' : ''}><span>Показывать в записи и онлайн-записи</span></label>
     <div class="btns"><button class="btn" onclick="saveService('${id || ''}')">Сохранить</button>${id ? `<button class="btn bad" onclick="delService('${id}')">Удалить</button>` : ''}</div>`);
@@ -813,7 +816,7 @@ function loadDemo() {
   const names = ['Анна Смирнова', 'Мария Иванова', 'Екатерина Козлова', 'Ольга Новикова', 'Дарья Морозова', 'Ирина Волкова', 'Светлана Лебедева', 'Юлия Соколова', 'Наталья Попова', 'Алина Кузнецова'];
   const t = today(); const S = db.services;
   names.forEach((name, i) => {
-    const c = { id: uid(), name, phone: '+7 900 000-00-' + pad(10 + i), source: SOURCES[i % 6], skin: ['Нормальная', 'Чувствительная', 'Сухая'][i % 3], hair: ['Тёмные, жёсткие', 'Светлые, тонкие'][i % 2],
+    const c = { id: uid(), name, phone: '+7 700 000-00-' + pad(10 + i), source: SOURCES[i % 6], skin: ['Нормальная', 'Чувствительная', 'Сухая'][i % 3], hair: ['Тёмные, жёсткие', 'Светлые, тонкие'][i % 2],
       allergies: i === 2 ? 'Канифоль (воск не подходит!)' : '', contra: i === 5 ? 'Варикоз на голенях' : '', notes: i === 0 ? 'Низкий болевой порог, любит тальк' : '', birthday: i === 1 ? '1994' + addDays(t, 3).slice(4) : '', createdAt: addDays(t, -150) };
     db.clients.push(c);
     const svc = [S[(i * 3) % S.length], S[(i + 1) % S.length]].filter((x, k, a) => a.indexOf(x) === k);
@@ -825,8 +828,8 @@ function loadDemo() {
         price, paid: price, method: c.allergies ? 'Шугаринг' : METHODS[i % 2], status: k-- && Math.random() < .06 ? 'noshow' : 'done', note: '' }); });
     if (i % 3 === 0) { const nd = addDays(t, 1 + i % 5); db.visits.push({ id: uid(), clientId: c.id, date: nd, time: m2t(660 + i * 30), dur: svc[0].dur, services: [svc[0].id], title: svc[0].name, price: svc[0].price, paid: 0, method: 'Шугаринг', status: 'planned', note: '' }); }
   });
-  for (let m = 0; m < 6; m++) { const md = monthAdd(t.slice(0, 7), -m) + '-05'; db.expenses.push({ id: uid(), date: md, cat: 'Паста / сахар', amount: 2400, note: 'паста 1,5 кг' }, { id: uid(), date: md.replace('-05', '-12'), cat: 'Расходники', amount: 900, note: 'бумага, перчатки, тальк' }, { id: uid(), date: md.replace('-05', '-01'), cat: 'Аренда', amount: 8000, note: '' }); }
-  if (!db.settings.master) Object.assign(db.settings, { master: 'Мастер депиляции', phone: '+7 900 000-00-00' });
+  for (let m = 0; m < 6; m++) { const md = monthAdd(t.slice(0, 7), -m) + '-05'; db.expenses.push({ id: uid(), date: md, cat: 'Паста / сахар', amount: 12000, note: 'паста 1,5 кг' }, { id: uid(), date: md.replace('-05', '-12'), cat: 'Расходники', amount: 4500, note: 'бумага, перчатки, тальк' }, { id: uid(), date: md.replace('-05', '-01'), cat: 'Аренда', amount: 60000, note: '' }); }
+  if (!db.settings.master) Object.assign(db.settings, { master: 'Мастер депиляции', phone: '+7 700 000-00-00' });
   save(); render(); toast('Пример загружен. Удалить его: Ещё → Настройки → Стереть все данные');
 }
 

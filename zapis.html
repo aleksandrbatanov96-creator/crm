@@ -50,7 +50,7 @@ const ds = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getD
 const m2t = m => pad(Math.floor(m / 60)) + ':' + pad(m % 60);
 const DOW = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 const MON = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-const money = n => (Math.round(+n || 0)).toLocaleString('ru-RU') + ' ₽';
+const money = n => (Math.round(+n || 0)).toLocaleString('ru-RU') + ' ₸';
 function toast(m) { const t = $('toast'); t.textContent = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3500); }
 
 let P = null;
