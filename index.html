@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Мой кабинет — CRM</title>
+<meta name="theme-color" content="#c2577a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+:root{--bg:#fbf6f8;--card:#fff;--ink:#2d2328;--muted:#8d7f86;--line:#efe3e8;--accent:#c2577a;--accent2:#a8436a;--soft:#f8e6ee;--ok:#2f9466;--oksoft:#e3f4ec;--warn:#c9821f;--warnsoft:#fbf0dc;--bad:#c94a4a;--badsoft:#fae5e5;--r:14px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 -apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+body{padding-bottom:calc(70px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:12px 16px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+header h1{font-size:19px;margin:0}
+header .sub{color:var(--muted);font-size:13px}
+main{padding:12px 16px;max-width:720px;margin:0 auto}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;background:none;padding:8px 0 7px;font-size:11px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;position:relative}
+nav button .i{font-size:21px;line-height:1}
+nav button.on{color:var(--accent);font-weight:600}
+nav .badge{position:absolute;top:3px;left:calc(50% + 6px);background:var(--bad);color:#fff;border-radius:10px;font-size:10px;padding:1px 5px;font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:0 0 10px}
+.row{display:flex;align-items:center;gap:8px}
+.between{justify-content:space-between}
+.wrap{flex-wrap:wrap}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.big{font-size:22px;font-weight:700}
+h2{font-size:17px;margin:18px 0 8px}
+h3{font-size:15px;margin:14px 0 6px}
+.btn{border:0;border-radius:11px;padding:10px 14px;font-size:15px;font-weight:600;background:var(--accent);color:#fff;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:active{background:var(--accent2)}
+.btn.ghost{background:var(--soft);color:var(--accent2)}
+.btn.line{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.ok{background:var(--ok)}
+.btn.bad{background:var(--badsoft);color:var(--bad)}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:9px}
+.btn.wide{width:100%}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btns .btn{flex:1 1 auto}
+.fab{position:fixed;right:16px;bottom:calc(80px + env(safe-area-inset-bottom));z-index:6;width:56px;height:56px;border-radius:50%;font-size:28px;padding:0;box-shadow:0 6px 18px rgba(194,87,122,.35)}
+input,select,textarea{width:100%;font:inherit;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+textarea{min-height:70px;resize:vertical}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:20px;background:var(--soft);color:var(--accent2);font-weight:600}
+.tag.ok{background:var(--oksoft);color:var(--ok)}
+.tag.warn{background:var(--warnsoft);color:var(--warn)}
+.tag.bad{background:var(--badsoft);color:var(--bad)}
+.tag.grey{background:#eee;color:#777}
+.alert{background:var(--badsoft);color:var(--bad);border-radius:10px;padding:8px 10px;font-size:14px;margin:8px 0}
+.note{background:var(--warnsoft);color:#7a5414;border-radius:10px;padding:8px 10px;font-size:14px;margin:8px 0}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:8px 0 12px}
+.week button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:6px 0;font:inherit;color:var(--ink);display:flex;flex-direction:column;align-items:center}
+.week button .d{font-size:17px;font-weight:700}
+.week button .w{font-size:11px;color:var(--muted)}
+.week button .dots{height:6px;font-size:9px;line-height:6px;color:var(--accent)}
+.week button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.week button.on .w,.week button.on .dots{color:#fff}
+.week button.today{border-color:var(--accent)}
+.week button.off{background:#f2eef0}
+.slot{display:block;width:100%;text-align:left;border:1.5px dashed #e3c9d4;background:transparent;color:var(--accent2);border-radius:12px;padding:9px 12px;margin:0 0 10px;font:inherit;font-size:14px}
+.visit{display:flex;gap:12px;cursor:pointer}
+.visit .t{min-width:52px;font-weight:700}
+.visit .t .e{font-weight:400;color:var(--muted);font-size:12px}
+.visit.done{border-left:4px solid var(--ok)}
+.visit.planned{border-left:4px solid var(--accent)}
+.visit.noshow,.visit.cancelled{opacity:.55;border-left:4px solid #bbb}
+.list .item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.list .item:last-child{border-bottom:0}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:10px 12px}
+.kpi .v{font-size:20px;font-weight:700}
+.kpi .l{font-size:12px;color:var(--muted)}
+.bars{display:flex;align-items:flex-end;gap:8px;height:130px;padding-top:8px}
+.bars .b{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--muted)}
+.bars .col{width:100%;display:flex;gap:2px;align-items:flex-end;flex:1}
+.bars .col i{flex:1;background:var(--accent);border-radius:4px 4px 0 0;min-height:2px}
+.bars .col i.x{background:#e6c3cf}
+.hbar{height:8px;background:var(--soft);border-radius:4px;overflow:hidden;margin-top:4px}
+.hbar i{display:block;height:100%;background:var(--accent)}
+.chk{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;background:#fff}
+.chk input{width:20px;height:20px;flex:none;accent-color:var(--accent)}
+.chk .p{margin-left:auto;white-space:nowrap;color:var(--muted);font-size:13px}
+#sheetBg{position:fixed;inset:0;background:rgba(40,20,30,.4);z-index:20;display:none}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--bg);border-radius:18px 18px 0 0;max-height:92vh;overflow:auto;padding:8px 16px calc(20px + env(safe-area-inset-bottom));display:none;max-width:720px;margin:0 auto}
+#sheet .grab{width:40px;height:5px;background:#ddd;border-radius:3px;margin:4px auto 8px}
+#sheet .shead{display:flex;justify-content:space-between;align-items:center;position:sticky;top:-8px;background:var(--bg);padding:6px 0;z-index:2}
+#sheet .shead h2{margin:0}
+.x{border:0;background:var(--soft);color:var(--accent2);width:34px;height:34px;border-radius:50%;font-size:18px}
+#toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d2328;color:#fff;padding:10px 16px;border-radius:12px;z-index:40;font-size:14px;display:none;max-width:90vw;text-align:center}
+#lock{position:fixed;inset:0;background:var(--bg);z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px}
+#lock input{max-width:220px;text-align:center;font-size:24px;letter-spacing:6px}
+.empty{text-align:center;color:var(--muted);padding:26px 10px}
+.seg{display:flex;background:var(--soft);border-radius:11px;padding:3px;gap:3px;margin:6px 0 10px}
+.seg button{flex:1;border:0;background:none;padding:7px;border-radius:9px;font:inherit;font-size:14px;color:var(--accent2)}
+.seg button.on{background:#fff;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+a{color:var(--accent2)}
+.menu .item{font-size:16px}
+</style>
+</head>
+<body>
+<header>
+  <div><h1 id="title">Записи</h1><div class="sub" id="subtitle"></div></div>
+  <div id="hdrBtn"></div>
+</header>
+<main id="app"></main>
+<nav id="nav">
+  <button data-t="cal"><span class="i">📅</span>Записи</button>
+  <button data-t="clients"><span class="i">👩</span>Клиенты</button>
+  <button data-t="remind"><span class="i">🔔</span>Напомнить<span class="badge" id="rbadge" style="display:none"></span></button>
+  <button data-t="stats"><span class="i">📊</span>Итоги</button>
+  <button data-t="more"><span class="i">⚙️</span>Ещё</button>
+</nav>
+<div id="sheetBg" onclick="closeSheet()"></div>
+<div id="sheet"></div>
+<div id="toast"></div>
+<div id="lock">
+  <div style="font-size:40px">🔒</div>
+  <div>Введите PIN-код</div>
+  <input id="lockIn" type="password" inputmode="numeric" maxlength="8" autocomplete="off">
+  <button class="btn" onclick="tryUnlock()">Открыть</button>
+</div>
+
+<script>
+'use strict';
+/* ===================== ДАННЫЕ ===================== */
+const KEY = 'crm_depil_v1';
+const DEF_SERVICES = [
+  ['Подмышки', 800, 20, 28], ['Бикини классическое', 1200, 30, 28], ['Глубокое бикини', 1800, 45, 28],
+  ['Голени', 1200, 30, 28], ['Ноги полностью', 2000, 60, 28], ['Руки до локтя', 900, 25, 28],
+  ['Руки полностью', 1300, 40, 28], ['Верхняя губа', 400, 10, 21], ['Живот (полоска)', 400, 10, 28],
+  ['Комплекс: глуб. бикини + подмышки + ноги', 3800, 90, 28]
+];
+const EXP_CATS = ['Паста / сахар', 'Воск', 'Расходники', 'Аренда', 'Реклама', 'Обучение', 'Другое'];
+const SOURCES = ['Сарафан (подруга)', 'Instagram', 'ВКонтакте', 'Telegram', 'Авито', 'Яндекс/2ГИС карты', 'Онлайн-запись', 'Другое'];
+const METHODS = ['Шугаринг', 'Воск', 'Другое'];
+const DEF_TPL = {
+  tplVisit: 'Здравствуйте, {имя}! 🌸 Напоминаю, что вы записаны на {дата} в {время} ({услуги}). Жду вас! Если планы изменились — напишите, пожалуйста.',
+  tplRepeat: 'Здравствуйте, {имя}! 🌸 Прошло уже {недель} нед. с последней процедуры — самое время обновить. Подобрать вам удобное окошко?',
+  tplLost: 'Здравствуйте, {имя}! 🌸 Давно не виделись. Буду рада видеть вас снова — для вас скидка 10% на следующий визит. Записать?',
+  tplBirthday: 'Здравствуйте, {имя}! 🎉 Поздравляю с днём рождения! В подарок — скидка 15% на процедуру в течение месяца 🌸'
+};
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function defaultDb() {
+  return {
+    v: 1,
+    settings: Object.assign({ master: '', phone: '', tg: '', address: '', workStart: '10:00', workEnd: '20:00', step: 30,
+      workDays: [1, 2, 3, 4, 5, 6], lostDays: 60, defaultRepeat: 28, bookDays: 14, pin: '', lastBackup: '' }, DEF_TPL),
+    services: DEF_SERVICES.map(([name, price, dur, rep]) => ({ id: uid(), name, price, dur, rep, active: true })),
+    clients: [], visits: [], expenses: [], daysOff: []
+  };
+}
+let db;
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) { const d = JSON.parse(raw); const def = defaultDb(); d.settings = Object.assign(def.settings, d.settings || {});
+      ['services', 'clients', 'visits', 'expenses', 'daysOff'].forEach(k => { if (!Array.isArray(d[k])) d[k] = def[k]; }); return d; }
+  } catch (e) { console.error(e); }
+  return defaultDb();
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(db)); }
+  catch (e) { alert('Не удалось сохранить данные! Сделайте резервную копию. ' + e.message); }
+}
+db = load();
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+
+/* ===================== ПОМОЩНИКИ ===================== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pad = n => String(n).padStart(2, '0');
+const ds = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const pd = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const today = () => ds(new Date());
+const addDays = (s, n) => { const d = pd(s); d.setDate(d.getDate() + n); return ds(d); };
+const diffDays = (a, b) => Math.round((pd(b) - pd(a)) / 864e5);
+const DOW = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+const MON = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+const MONN = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+const MONS = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+const fmtD = s => { const d = pd(s); return d.getDate() + ' ' + MON[d.getMonth()]; };
+const fmtDW = s => DOW[pd(s).getDay()] + ', ' + fmtD(s);
+const t2m = t => { const [h, m] = String(t).split(':').map(Number); return h * 60 + (m || 0); };
+const m2t = m => pad(Math.floor(m / 60)) + ':' + pad(m % 60);
+const money = n => (Math.round(Number(n) || 0)).toLocaleString('ru-RU') + ' ₽';
+const num = v => { const n = parseFloat(String(v).replace(',', '.').replace(/\s/g, '')); return isNaN(n) ? 0 : n; };
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toast.h); toast.h = setTimeout(() => t.style.display = 'none', 2600); }
+function plural(n, a, b, c) { n = Math.abs(n) % 100; const n1 = n % 10; if (n > 10 && n < 20) return c; if (n1 > 1 && n1 < 5) return b; if (n1 === 1) return a; return c; }
+
+const cById = id => db.clients.find(c => c.id === id);
+const sById = id => db.services.find(s => s.id === id);
+const byDT = (a, b) => (a.date + a.time).localeCompare(b.date + b.time);
+const visitsOf = cid => db.visits.filter(v => v.clientId === cid).sort(byDT);
+const lastDone = cid => { const l = visitsOf(cid).filter(v => v.status === 'done'); return l[l.length - 1]; };
+const nextPlanned = cid => visitsOf(cid).find(v => v.status === 'planned' && v.date >= today());
+function repeatFor(v) { const r = (v.services || []).map(id => sById(id)?.rep).filter(Boolean); return r.length ? Math.min(...r) : (db.settings.defaultRepeat || 28); }
+function firstName(c) { return (c?.name || '').trim().split(/\s+/)[0] || ''; }
+function normPhone(p) { let d = String(p || '').replace(/\D/g, ''); if (d.length === 11 && d[0] === '8') d = '7' + d.slice(1); if (d.length === 10 && d[0] === '9') d = '7' + d; return d; }
+function waLink(phone, text) { return 'https://wa.me/' + normPhone(phone) + (text ? '?text=' + encodeURIComponent(text) : ''); }
+function tgLink(tg) { return 'https://t.me/' + String(tg || '').replace(/^@/, '').replace(/^https?:\/\/t\.me\//, ''); }
+function fillTpl(tpl, c, v) {
+  const vars = { 'имя': firstName(c), 'дата': v ? fmtDW(v.date) : '', 'время': v ? v.time : '', 'услуги': v ? v.title : '',
+    'мастер': db.settings.master, 'адрес': db.settings.address,
+    'недель': (() => { const l = lastDone(c?.id); return l ? Math.max(1, Math.round(diffDays(l.date, today()) / 7)) : ''; })() };
+  return String(tpl || '').replace(/\{([а-яёa-z]+)\}/gi, (m, k) => vars[k.toLowerCase()] ?? m);
+}
+function openUrl(u) { window.open(u, '_blank'); }
+function writeTo(cid, text) {
+  const c = cById(cid); if (!c) return;
+  if (c.phone) openUrl(waLink(c.phone, text));
+  else if (c.tg) { copyText(text); openUrl(tgLink(c.tg)); toast('Текст скопирован — вставьте его в чат'); }
+  else { copyText(text); toast('У клиента нет телефона. Текст скопирован.'); }
+}
+function copyText(t) {
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(t).catch(() => fallbackCopy(t)); else fallbackCopy(t);
+}
+function fallbackCopy(t) { const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); } catch (e) {} a.remove(); }
+function medFlags(c) { return (c.allergies || '').trim() || (c.contra || '').trim(); }
+function clientOptions(sel) {
+  return db.clients.slice().sort((a, b) => a.name.localeCompare(b.name, 'ru'))
+    .map(c => `<option value="${c.id}" ${c.id === sel ? 'selected' : ''}>${esc(c.name)}${c.phone ? ' · ' + esc(c.phone) : ''}</option>`).join('');
+}
+
+/* ===================== ИНТЕРФЕЙС ===================== */
+const ui = { tab: 'cal', day: today(), q: '', month: today().slice(0, 7) };
+function openSheet(title, html) {
+  $('sheet').innerHTML = `<div class="grab"></div><div class="shead"><h2>${title}</h2><button class="x" onclick="closeSheet()">✕</button></div>${html}`;
+  $('sheet').style.display = 'block'; $('sheetBg').style.display = 'block'; $('sheet').scrollTop = 0;
+}
+function closeSheet() { $('sheet').style.display = 'none'; $('sheetBg').style.display = 'none'; }
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => { ui.tab = b.dataset.t; closeSheet(); render(); window.scrollTo(0, 0); });
+
+function render() {
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.t === ui.tab));
+  const n = remindCount(); $('rbadge').style.display = n ? 'block' : 'none'; $('rbadge').textContent = n;
+  $('hdrBtn').innerHTML = '';
+  $('app').innerHTML = VIEWS[ui.tab]();
+}
+const VIEWS = {};
+
+/* ---------- ЗАПИСИ (календарь) ---------- */
+VIEWS.cal = () => {
+  const s = db.settings, d = ui.day, t = today();
+  $('title').textContent = 'Записи';
+  const mon = addDays(d, -((pd(d).getDay() + 6) % 7));
+  $('subtitle').textContent = MONN[pd(mon).getMonth()] + ' ' + pd(mon).getFullYear();
+  $('hdrBtn').innerHTML = `<button class="btn sm ghost" onclick="pasteRequest()">📋 Заявка</button>`;
+  let h = '';
+  if (!db.clients.length && !db.visits.length) {
+    h += `<div class="card"><b>👋 Добро пожаловать!</b><div class="small muted" style="margin-top:4px">Начните с раздела «Ещё → Настройки»: имя, телефон WhatsApp и рабочее время. Потом добавьте клиентов (можно списком) и записи.</div>
+    <div class="btns"><button class="btn ghost sm" onclick="ui.tab='more';render();openSettings()">Настройки</button><button class="btn line sm" onclick="loadDemo()">Показать пример</button></div></div>`;
+  } else if (!s.lastBackup || diffDays(s.lastBackup, t) >= 7) {
+    h += `<div class="note">💾 ${s.lastBackup ? 'Резервная копия делалась ' + fmtD(s.lastBackup) : 'Резервная копия ещё не делалась'}. <a href="#" onclick="exportBackup();return false"><b>Сохранить сейчас</b></a></div>`;
+  }
+  h += `<div class="row between"><button class="btn sm line" onclick="ui.day=addDays(ui.day,-7);render()">‹ Неделя</button>
+    <button class="btn sm ghost" onclick="ui.day=today();render()">Сегодня</button>
+    <button class="btn sm line" onclick="ui.day=addDays(ui.day,7);render()">Неделя ›</button></div><div class="week">`;
+  for (let i = 0; i < 7; i++) {
+    const x = addDays(mon, i), cnt = db.visits.filter(v => v.date === x && v.status !== 'cancelled').length;
+    const off = isOff(x);
+    h += `<button class="${x === d ? 'on' : ''} ${x === t ? 'today' : ''} ${off ? 'off' : ''}" onclick="ui.day='${x}';render()"><span class="w">${DOW[pd(x).getDay()]}</span><span class="d">${pd(x).getDate()}</span><span class="dots">${'●'.repeat(Math.min(cnt, 4))}</span></button>`;
+  }
+  h += '</div>';
+  const vs = db.visits.filter(v => v.date === d).sort(byDT);
+  const active = vs.filter(v => v.status === 'planned' || v.status === 'done');
+  const sum = active.reduce((a, v) => a + (v.status === 'done' ? num(v.paid) : num(v.price)), 0);
+  h += `<div class="row between"><h2 style="margin:4px 0 8px">${fmtDW(d)}${d === t ? ' · сегодня' : ''}</h2>
+    <button class="btn sm line" onclick="toggleOff('${d}')">${isOff(d) ? '🌿 Выходной' : 'Сделать выходным'}</button></div>`;
+  if (active.length) h += `<div class="small muted" style="margin:-4px 0 8px">${active.length} ${plural(active.length, 'запись', 'записи', 'записей')} · ${money(sum)}</div>`;
+  if (isOff(d) && !active.length) h += `<div class="empty">🌿 Выходной день</div>`;
+  else {
+    let cur = t2m(s.workStart); const end = t2m(s.workEnd);
+    const gap = (a, b) => b - a >= 30 ? `<button class="slot" onclick="openVisitForm({date:'${d}',time:'${m2t(a)}'})">＋ Свободно ${m2t(a)}–${m2t(b)}</button>` : '';
+    for (const v of active) {
+      const st = t2m(v.time);
+      if (!isOff(d) && st > cur) h += gap(cur, st);
+      h += visitCard(v);
+      cur = Math.max(cur, st + (v.dur || 30));
+    }
+    if (!isOff(d) && cur < end) h += gap(cur, end);
+  }
+  const other = vs.filter(v => v.status === 'cancelled' || v.status === 'noshow');
+  if (other.length) h += `<h3 class="muted">Отмены и неявки</h3>` + other.map(visitCard).join('');
+  h += `<button class="btn fab" onclick="openVisitForm({date:ui.day})">＋</button>`;
+  return h;
+};
+function isOff(d) { return db.daysOff.includes(d) || !db.settings.workDays.includes(pd(d).getDay()) && !(db.workOn || []).includes(d); }
+function toggleOff(d) {
+  const wd = db.settings.workDays.includes(pd(d).getDay());
+  db.workOn = db.workOn || [];
+  if (wd) { db.daysOff = db.daysOff.includes(d) ? db.daysOff.filter(x => x !== d) : db.daysOff.concat(d); }
+  else { db.workOn = db.workOn.includes(d) ? db.workOn.filter(x => x !== d) : db.workOn.concat(d); }
+  save(); render();
+}
+const STATUS = { planned: ['Записана', ''], done: ['Выполнено', 'ok'], noshow: ['Не пришла', 'bad'], cancelled: ['Отменена', 'grey'] };
+function visitCard(v) {
+  const c = cById(v.clientId) || { name: '(клиент удалён)' };
+  const st = STATUS[v.status] || STATUS.planned;
+  return `<div class="card visit ${v.status}" onclick="openVisit('${v.id}')">
+    <div class="t">${v.time}<div class="e">${m2t(t2m(v.time) + (v.dur || 30))}</div></div>
+    <div style="flex:1;min-width:0"><div class="row between"><b>${esc(c.name)}</b>${v.status !== 'planned' ? `<span class="tag ${st[1]}">${st[0]}</span>` : (v.reminded ? '<span class="tag ok">напомнила ✓</span>' : '')}</div>
+    <div class="small muted">${esc(v.title)}</div>
+    <div class="small"><b>${money(v.status === 'done' ? v.paid : v.price)}</b>${v.method ? ' · ' + esc(v.method) : ''}${medFlags(c) ? ' · <span style="color:var(--bad)">⚠ мед. отметки</span>' : ''}</div></div></div>`;
+}
+
+function openVisit(id) {
+  const v = db.visits.find(x => x.id === id); if (!v) return;
+  const c = cById(v.clientId) || { name: '(клиент удалён)' };
+  let h = `<div class="card"><div class="row between"><b style="font-size:17px">${esc(c.name)}</b>${c.id ? `<button class="btn sm ghost" onclick="openClient('${c.id}')">Карточка</button>` : ''}</div>
+    <div class="muted">${fmtDW(v.date)}, ${v.time}–${m2t(t2m(v.time) + (v.dur || 30))}</div>
+    <div style="margin-top:6px">${esc(v.title)}</div>
+    <div class="small muted">${v.method ? esc(v.method) + ' · ' : ''}${money(v.price)}</div>
+    ${v.note ? `<div class="small" style="margin-top:6px">📝 ${esc(v.note)}</div>` : ''}</div>`;
+  if (c.allergies) h += `<div class="alert">⚠ Аллергии: ${esc(c.allergies)}</div>`;
+  if (c.contra) h += `<div class="alert">⚠ Противопоказания: ${esc(c.contra)}</div>`;
+  if (v.status === 'planned') {
+    h += `<label>Оплачено, ₽</label><input id="paid" inputmode="decimal" value="${num(v.price)}">
+      <label>Заметка после процедуры (реакция кожи, что учесть)</label><textarea id="vnote">${esc(v.note || '')}</textarea>
+      <div class="btns"><button class="btn ok" onclick="setStatus('${id}','done')">✅ Выполнено</button></div>
+      <div class="btns"><button class="btn line" onclick="remindVisit('${id}')">💬 Напомнить о записи</button></div>
+      <div class="btns"><button class="btn bad sm" onclick="setStatus('${id}','noshow')">Не пришла</button><button class="btn bad sm" onclick="setStatus('${id}','cancelled')">Отменить</button></div>`;
+  } else {
+    const st = STATUS[v.status];
+    h += `<div class="row"><span class="tag ${st[1]}">${st[0]}</span>${v.status === 'done' ? `<b>${money(v.paid)}</b>` : ''}</div>
+      <div class="btns"><button class="btn line sm" onclick="setStatus('${id}','planned')">Вернуть в «Записана»</button>
+      ${c.id ? `<button class="btn ghost sm" onclick="openVisitForm({clientId:'${c.id}',services:${esc(JSON.stringify(v.services || []))}, date:'${suggestNext(v)}'})">Записать снова</button>` : ''}</div>`;
+  }
+  h += `<div class="btns"><button class="btn line sm" onclick="openVisitForm({id:'${id}'})">✏️ Изменить</button><button class="btn bad sm" onclick="delVisit('${id}')">Удалить</button></div>`;
+  openSheet('Запись', h);
+}
+function suggestNext(v) { let d = addDays(v.date, repeatFor(v)); if (d < today()) d = today(); return d; }
+function setStatus(id, st) {
+  const v = db.visits.find(x => x.id === id);
+  if (st === 'done') { v.paid = num($('paid').value); v.note = $('vnote').value.trim(); }
+  if (st === 'planned') v.paid = 0;
+  v.status = st; save(); closeSheet(); render();
+  if (st === 'done') {
+    const c = cById(v.clientId); const nd = suggestNext(v);
+    toast('Готово! Следующая процедура примерно ' + fmtD(nd));
+  }
+}
+function delVisit(id) { if (!confirm('Удалить запись?')) return; db.visits = db.visits.filter(v => v.id !== id); save(); closeSheet(); render(); }
+function remindVisit(id) {
+  const v = db.visits.find(x => x.id === id); const c = cById(v.clientId);
+  writeTo(c.id, fillTpl(db.settings.tplVisit, c, v)); v.reminded = true; save(); render();
+}
+
+/* ---------- Форма записи ---------- */
+function timeOptions(sel) {
+  let h = ''; const step = 15;
+  for (let m = 7 * 60; m <= 22 * 60; m += step) h += `<option ${m2t(m) === sel ? 'selected' : ''}>${m2t(m)}</option>`;
+  if (sel && t2m(sel) % step) h = `<option selected>${sel}</option>` + h;
+  return h;
+}
+function openVisitForm(o) {
+  const v = o.id ? db.visits.find(x => x.id === o.id) : null;
+  const cur = v || { date: o.date || today(), time: o.time || firstFree(o.date || today()), clientId: o.clientId || '', services: o.services || [], method: db.settings.lastMethod || 'Шугаринг', note: '', price: null };
+  const svcs = db.services.filter(s => s.active || cur.services.includes(s.id));
+  let h = `<label>Клиент</label><select id="f_client" onchange="$('newc').style.display=this.value==='__new'?'block':'none'">
+      <option value="__new">➕ Новый клиент</option>${clientOptions(cur.clientId)}</select>
+    <div id="newc" style="display:${cur.clientId ? 'none' : 'block'}"><div class="grid2"><div><label>Имя</label><input id="f_name" placeholder="Анна"></div><div><label>Телефон</label><input id="f_phone" type="tel" placeholder="+7…"></div></div></div>
+    <div class="grid2"><div><label>Дата</label><input id="f_date" type="date" value="${cur.date}"></div><div><label>Время</label><select id="f_time">${timeOptions(cur.time)}</select></div></div>
+    <label>Услуги</label><div id="f_svcs">${svcs.map(s => `<label class="chk"><input type="checkbox" value="${s.id}" ${cur.services.includes(s.id) ? 'checked' : ''} onchange="recalc()"><span>${esc(s.name)}</span><span class="p">${money(s.price)} · ${s.dur} мин</span></label>`).join('')}</div>
+    <div class="grid2"><div><label>Цена, ₽</label><input id="f_price" inputmode="decimal" value="${cur.price ?? ''}"></div><div><label>Длительность, мин</label><input id="f_dur" inputmode="numeric" value="${cur.dur ?? ''}"></div></div>
+    <label>Метод</label><select id="f_method">${METHODS.map(m => `<option ${m === cur.method ? 'selected' : ''}>${m}</option>`).join('')}</select>
+    <label>Комментарий</label><textarea id="f_note" placeholder="Например: первый раз, длина волос 5 мм">${esc(cur.note || '')}</textarea>
+    <div class="btns"><button class="btn wide" onclick="saveVisit('${v ? v.id : ''}')">Сохранить</button></div>`;
+  openSheet(v ? 'Изменить запись' : 'Новая запись', h);
+  if (!v) recalc(true);
+}
+function firstFree(d) {
+  const s = db.settings; let cur = t2m(s.workStart);
+  db.visits.filter(v => v.date === d && (v.status === 'planned' || v.status === 'done')).sort(byDT).forEach(v => { if (t2m(v.time) <= cur + 0) cur = Math.max(cur, t2m(v.time) + (v.dur || 30)); });
+  if (d === today()) { const n = new Date(); cur = Math.max(cur, Math.ceil((n.getHours() * 60 + n.getMinutes()) / 30) * 30); }
+  return m2t(Math.min(cur, 22 * 60));
+}
+function recalc(initial) {
+  const ids = [...document.querySelectorAll('#f_svcs input:checked')].map(i => i.value);
+  const ss = ids.map(sById).filter(Boolean);
+  if (!initial || !$('f_price').value) $('f_price').value = ss.length ? ss.reduce((a, s) => a + num(s.price), 0) : '';
+  if (!initial || !$('f_dur').value) $('f_dur').value = ss.length ? ss.reduce((a, s) => a + num(s.dur), 0) : '';
+}
+function saveVisit(id) {
+  let cid = $('f_client').value;
+  if (cid === '__new') {
+    const name = $('f_name').value.trim(); if (!name) return alert('Введите имя клиента');
+    const c = { id: uid(), name, phone: $('f_phone').value.trim(), createdAt: today() }; db.clients.push(c); cid = c.id;
+  }
+  const ids = [...document.querySelectorAll('#f_svcs input:checked')].map(i => i.value);
+  if (!ids.length) return alert('Выберите хотя бы одну услугу');
+  const date = $('f_date').value, time = $('f_time').value, dur = num($('f_dur').value) || 30;
+  if (!date) return alert('Укажите дату');
+  const st = t2m(time), en = st + dur;
+  const clash = db.visits.find(v => v.id !== id && v.date === date && v.status === 'planned' && t2m(v.time) < en && t2m(v.time) + (v.dur || 30) > st);
+  if (clash && !confirm(`Пересекается с записью ${clash.time} (${cById(clash.clientId)?.name || ''}). Всё равно сохранить?`)) return;
+  const data = { clientId: cid, date, time, dur, services: ids, title: ids.map(i => sById(i)?.name).filter(Boolean).join(' + '),
+    price: num($('f_price').value), method: $('f_method').value, note: $('f_note').value.trim() };
+  db.settings.lastMethod = data.method;
+  if (id) Object.assign(db.visits.find(v => v.id === id), data);
+  else db.visits.push(Object.assign({ id: uid(), status: 'planned', paid: 0, createdAt: today() }, data));
+  save(); closeSheet(); ui.day = date; if (ui.tab !== 'clients') ui.tab = 'cal'; render(); toast('Запись сохранена');
+}
+
+/* ---------- Заявка с онлайн-записи ---------- */
+function pasteRequest() {
+  openSheet('Заявка из онлайн-записи', `<div class="small muted">Скопируйте сообщение клиентки из WhatsApp/Telegram целиком и вставьте сюда — запись заполнится сама.</div>
+    <textarea id="req" style="min-height:160px;margin-top:8px" placeholder="Вставьте сообщение…"></textarea>
+    <div class="btns"><button class="btn wide" onclick="parseRequest()">Разобрать заявку</button></div>`);
+}
+function parseRequest() {
+  const t = $('req').value;
+  const m = t.match(/Z\|(\d{4}-\d\d-\d\d)\|(\d\d:\d\d)\|([\w,]*)/);
+  if (!m) return alert('Не нашла код записи в сообщении. Скопируйте сообщение целиком (вместе со строкой «код записи»).');
+  const name = (t.match(/Имя:\s*(.+)/) || [])[1]?.trim() || 'Клиент';
+  const phone = (t.match(/Телефон:\s*(.+)/) || [])[1]?.trim() || '';
+  const comment = (t.match(/Комментарий:\s*(.+)/) || [])[1]?.trim() || '';
+  let c = phone && db.clients.find(x => normPhone(x.phone) && normPhone(x.phone) === normPhone(phone));
+  if (!c) c = db.clients.find(x => x.name.toLowerCase() === name.toLowerCase() && !phone);
+  if (!c) { c = { id: uid(), name, phone, source: 'Онлайн-запись', createdAt: today() }; db.clients.push(c); save(); toast('Новый клиент добавлен: ' + name); }
+  const services = m[3].split(',').filter(id => sById(id));
+  openVisitForm({ clientId: c.id, date: m[1], time: m[2], services });
+  if (comment) $('f_note').value = comment;
+}
+
+/* ---------- КЛИЕНТЫ ---------- */
+VIEWS.clients = () => {
+  $('title').textContent = 'Клиенты'; $('subtitle').textContent = db.clients.length + ' ' + plural(db.clients.length, 'клиент', 'клиента', 'клиентов');
+  $('hdrBtn').innerHTML = `<button class="btn sm ghost" onclick="openBulk()">Списком</button>`;
+  const q = ui.q.toLowerCase();
+  const list = db.clients.filter(c => !q || (c.name + ' ' + (c.phone || '') + ' ' + (c.tg || '') + ' ' + (c.notes || '')).toLowerCase().includes(q))
+    .map(c => ({ c, l: lastDone(c.id), n: nextPlanned(c.id), cnt: db.visits.filter(v => v.clientId === c.id && v.status === 'done').length }))
+    .sort((a, b) => a.c.name.localeCompare(b.c.name, 'ru'));
+  let h = `<input id="cq" placeholder="🔍 Поиск по имени, телефону, заметкам" value="${esc(ui.q)}" oninput="ui.q=this.value;const p=this.selectionStart;render();const e=$('cq');e.focus();e.setSelectionRange(p,p)" style="margin-bottom:10px">`;
+  if (!list.length) h += `<div class="empty">${db.clients.length ? 'Никого не нашла' : 'Клиентов пока нет.<br>Добавьте первую клиентку кнопкой ＋ или списком из заметок.'}</div>`;
+  else h += `<div class="card list">` + list.map(({ c, l, n, cnt }) => `<div class="item" onclick="openClient('${c.id}')">
+      <div style="min-width:0"><b>${esc(c.name)}</b> ${medFlags(c) ? '<span style="color:var(--bad)">⚠</span>' : ''}
+      <div class="small muted">${n ? '📅 ' + fmtD(n.date) + ' ' + n.time : l ? 'был(а) ' + fmtD(l.date) : 'ещё не была'} · ${cnt} ${plural(cnt, 'визит', 'визита', 'визитов')}</div></div>
+      <span class="muted">›</span></div>`).join('') + `</div>`;
+  h += `<button class="btn fab" onclick="openClientForm()">＋</button>`;
+  return h;
+};
+function openClient(id) {
+  const c = cById(id); if (!c) return;
+  const vs = visitsOf(id).reverse(), done = vs.filter(v => v.status === 'done');
+  const total = done.reduce((a, v) => a + num(v.paid), 0);
+  const l = done[0], n = nextPlanned(id);
+  let intervals = []; for (let i = 0; i < done.length - 1; i++) intervals.push(diffDays(done[i + 1].date, done[i].date));
+  const avgInt = intervals.length ? Math.round(intervals.reduce((a, b) => a + b, 0) / intervals.length) : null;
+  let h = `<div class="card"><div class="small muted">${c.phone ? esc(c.phone) : 'без телефона'}${c.tg ? ' · ' + esc(c.tg) : ''}${c.source ? ' · ' + esc(c.source) : ''}</div>
+    <div class="btns">${c.phone ? `<a class="btn line sm" href="tel:${esc(c.phone)}">📞 Позвонить</a><a class="btn line sm" target="_blank" href="${waLink(c.phone)}">WhatsApp</a>` : ''}${c.tg ? `<a class="btn line sm" target="_blank" href="${tgLink(c.tg)}">Telegram</a>` : ''}</div>
+    <div class="btns"><button class="btn" onclick="openVisitForm({clientId:'${id}',services:${esc(JSON.stringify(l?.services || []))}})">📅 Записать</button></div></div>`;
+  if (c.allergies) h += `<div class="alert">⚠ Аллергии: ${esc(c.allergies)}</div>`;
+  if (c.contra) h += `<div class="alert">⚠ Противопоказания: ${esc(c.contra)}</div>`;
+  h += `<div class="kpis"><div class="kpi"><div class="v">${done.length}</div><div class="l">визитов</div></div><div class="kpi"><div class="v">${money(total)}</div><div class="l">всего потратила</div></div>
+    <div class="kpi"><div class="v">${l ? fmtD(l.date) : '—'}</div><div class="l">последний визит</div></div>
+    <div class="kpi"><div class="v">${n ? fmtD(n.date) : l ? fmtD(suggestNext(l)) : '—'}</div><div class="l">${n ? 'следующая запись' : 'пора на повтор'}</div></div></div>`;
+  h += `<h3>Карточка</h3><div class="card small">
+    ${row('Тип кожи', c.skin)}${row('Волосы', c.hair)}${row('День рождения', c.birthday ? fmtD(c.birthday) : '')}${row('Средний интервал', avgInt ? avgInt + ' дн.' : '')}${row('Заметки', c.notes)}
+    ${!c.skin && !c.hair && !c.notes && !c.birthday ? '<span class="muted">Заполните тип кожи, волос и заметки — нажмите «Изменить».</span>' : ''}</div>`;
+  h += `<h3>История процедур</h3>` + (vs.length ? vs.map(v => `<div class="card small" onclick="openVisit('${v.id}')" style="cursor:pointer"><div class="row between"><b>${fmtD(v.date)} ${pd(v.date).getFullYear() !== new Date().getFullYear() ? pd(v.date).getFullYear() : ''}</b><span class="tag ${STATUS[v.status][1]}">${STATUS[v.status][0]}</span></div>
+      <div>${esc(v.title)}${v.method ? ' · ' + esc(v.method) : ''}</div><div class="muted">${money(v.status === 'done' ? v.paid : v.price)}</div>${v.note ? `<div>📝 ${esc(v.note)}</div>` : ''}</div>`).join('') : '<div class="muted small">Пока нет визитов</div>');
+  h += `<div class="btns"><button class="btn line" onclick="openClientForm('${id}')">✏️ Изменить</button><button class="btn bad" onclick="delClient('${id}')">Удалить</button></div>`;
+  openSheet(esc(c.name), h);
+}
+function row(k, v) { return v ? `<div style="margin-bottom:6px"><span class="muted">${k}:</span> ${esc(v)}</div>` : ''; }
+function openClientForm(id) {
+  const c = id ? cById(id) : {};
+  const h = `<label>Имя и фамилия *</label><input id="c_name" value="${esc(c.name)}">
+    <div class="grid2"><div><label>Телефон (WhatsApp)</label><input id="c_phone" type="tel" value="${esc(c.phone)}" placeholder="+7…"></div><div><label>Telegram</label><input id="c_tg" value="${esc(c.tg)}" placeholder="@ник"></div></div>
+    <div class="grid2"><div><label>День рождения</label><input id="c_bd" type="date" value="${esc(c.birthday)}"></div><div><label>Откуда узнала</label><select id="c_src"><option></option>${SOURCES.map(s => `<option ${s === c.source ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div>
+    <label>Тип кожи</label><input id="c_skin" list="skinL" value="${esc(c.skin)}"><datalist id="skinL"><option>Нормальная</option><option>Сухая</option><option>Чувствительная</option><option>Склонна к раздражению</option><option>Жирная</option></datalist>
+    <label>Волосы</label><input id="c_hair" list="hairL" value="${esc(c.hair)}"><datalist id="hairL"><option>Светлые, тонкие</option><option>Тёмные, жёсткие</option><option>Средние</option><option>Склонность к вросшим</option></datalist>
+    <label>Противопоказания (варикоз, диабет, беременность…)</label><textarea id="c_contra">${esc(c.contra)}</textarea>
+    <label>Аллергии</label><textarea id="c_all">${esc(c.allergies)}</textarea>
+    <label>Заметки</label><textarea id="c_notes" placeholder="Предпочтения, болевой порог, о чём говорили">${esc(c.notes)}</textarea>
+    <div class="btns"><button class="btn wide" onclick="saveClient('${id || ''}')">Сохранить</button></div>`;
+  openSheet(id ? 'Изменить клиента' : 'Новый клиент', h);
+}
+function saveClient(id) {
+  const name = $('c_name').value.trim(); if (!name) return alert('Введите имя');
+  const d = { name, phone: $('c_phone').value.trim(), tg: $('c_tg').value.trim(), birthday: $('c_bd').value, source: $('c_src').value,
+    skin: $('c_skin').value.trim(), hair: $('c_hair').value.trim(), contra: $('c_contra').value.trim(), allergies: $('c_all').value.trim(), notes: $('c_notes').value.trim() };
+  const dup = d.phone && db.clients.find(x => x.id !== id && normPhone(x.phone) === normPhone(d.phone));
+  if (dup && !confirm('Клиент с таким телефоном уже есть: ' + dup.name + '. Всё равно сохранить?')) return;
+  if (id) Object.assign(cById(id), d); else { id = uid(); db.clients.push(Object.assign({ id, createdAt: today() }, d)); }
+  save(); render(); openClient(id);
+}
+function delClient(id) {
+  const n = db.visits.filter(v => v.clientId === id).length;
+  if (!confirm('Удалить клиента' + (n ? ' и ' + n + ' ' + plural(n, 'запись', 'записи', 'записей') + ' (выручка из итогов тоже уйдёт)' : '') + '?')) return;
+  db.clients = db.clients.filter(c => c.id !== id); db.visits = db.visits.filter(v => v.clientId !== id); save(); closeSheet(); render();
+}
+function openBulk() {
+  openSheet('Добавить списком', `<div class="small muted">По одной клиентке на строку: имя и телефон. Удобно скопировать из заметок или контактов.<br>Например: <i>Анна Петрова +7 912 345-67-89</i></div>
+    <textarea id="bulk" style="min-height:200px;margin-top:8px"></textarea><div class="btns"><button class="btn wide" onclick="saveBulk()">Добавить</button></div>`);
+}
+function saveBulk() {
+  let added = 0, skipped = 0;
+  $('bulk').value.split('\n').map(s => s.trim()).filter(Boolean).forEach(line => {
+    const pm = line.match(/(\+?\d[\d\s()\-]{8,}\d)/); const phone = pm ? pm[1].trim() : '';
+    const name = line.replace(pm ? pm[1] : '', '').replace(/[,;:\-–—]+\s*$/, '').replace(/^\s*[,;:\-–—]+/, '').trim() || phone;
+    if (!name) return;
+    if (phone && db.clients.find(c => normPhone(c.phone) === normPhone(phone))) { skipped++; return; }
+    db.clients.push({ id: uid(), name, phone, createdAt: today() }); added++;
+  });
+  save(); closeSheet(); render(); toast('Добавлено: ' + added + (skipped ? ', уже были: ' + skipped : ''));
+}
+
+/* ---------- НАПОМНИТЬ ---------- */
+function dueList() {
+  const t = today();
+  return db.clients.map(c => {
+    const l = lastDone(c.id); if (!l || nextPlanned(c.id)) return null;
+    const since = diffDays(l.date, t); if (since > db.settings.lostDays) return null;
+    const due = addDays(l.date, repeatFor(l)); if (diffDays(t, due) > 3) return null;
+    if (c.remindedAt && c.remindedAt >= l.date && diffDays(c.remindedAt, t) < 10) return null;
+    return { c, l, due, since };
+  }).filter(Boolean).sort((a, b) => a.due.localeCompare(b.due));
+}
+function lostList() {
+  const t = today();
+  return db.clients.map(c => {
+    const l = lastDone(c.id); if (!l || nextPlanned(c.id)) return null;
+    const since = diffDays(l.date, t); if (since <= db.settings.lostDays) return null;
+    if (c.lostMsgAt && diffDays(c.lostMsgAt, t) < 30) return null;
+    return { c, l, since };
+  }).filter(Boolean).sort((a, b) => a.since - b.since);
+}
+function bdList() {
+  const t = today(), y = pd(t).getFullYear();
+  return db.clients.filter(c => c.birthday).map(c => {
+    let d = y + c.birthday.slice(4); if (d < t) d = (y + 1) + c.birthday.slice(4);
+    return { c, d, in: diffDays(t, d) };
+  }).filter(x => x.in <= 7 && !(x.c.bdMsg === x.d)).sort((a, b) => a.in - b.in);
+}
+function tomorrowList() { const tm = addDays(today(), 1); return db.visits.filter(v => v.date === tm && v.status === 'planned' && !v.reminded).sort(byDT); }
+function remindCount() { return tomorrowList().length + dueList().length + bdList().filter(x => x.in <= 1).length; }
+VIEWS.remind = () => {
+  $('title').textContent = 'Кому написать'; $('subtitle').textContent = fmtDW(today());
+  const tm = tomorrowList(), due = dueList(), lost = lostList(), bd = bdList();
+  let h = '';
+  if (!tm.length && !due.length && !lost.length && !bd.length) h += `<div class="empty">🌸 Сегодня никому писать не нужно</div>`;
+  if (tm.length) h += `<h2>Завтра записаны</h2>` + tm.map(v => { const c = cById(v.clientId); return `<div class="card"><div class="row between"><div><b>${esc(c?.name)}</b><div class="small muted">${v.time} · ${esc(v.title)}</div></div>
+      <button class="btn sm" onclick="remindVisit('${v.id}')">💬 Напомнить</button></div></div>`; }).join('');
+  if (due.length) h += `<h2>Пора на повторную процедуру</h2><div class="small muted" style="margin-top:-4px;margin-bottom:8px">Прошло ${db.settings.defaultRepeat / 7 | 0}+ недели, а новой записи нет</div>` + due.map(({ c, l, due, since }) => `<div class="card">
+      <div class="row between"><div><b>${esc(c.name)}</b><div class="small muted">${esc(l.title)} · ${since} дн. назад${due > today() ? ' · срок ' + fmtD(due) : ''}</div></div></div>
+      <div class="btns"><button class="btn sm" onclick="remindRepeat('${c.id}')">💬 Написать</button><button class="btn sm ghost" onclick="openVisitForm({clientId:'${c.id}',services:${esc(JSON.stringify(l.services || []))}})">Записать</button><button class="btn sm line" onclick="hideDue('${c.id}')">Позже</button></div></div>`).join('');
+  if (bd.length) h += `<h2>Дни рождения</h2>` + bd.map(({ c, d, in: n }) => `<div class="card row between"><div><b>🎂 ${esc(c.name)}</b><div class="small muted">${n === 0 ? 'сегодня!' : n === 1 ? 'завтра' : fmtD(d)}</div></div>
+      <button class="btn sm ghost" onclick="greet('${c.id}','${d}')">Поздравить</button></div>`).join('');
+  if (lost.length) h += `<h2>Давно не были (более ${db.settings.lostDays} дн.)</h2>` + lost.map(({ c, l, since }) => `<div class="card row between"><div><b>${esc(c.name)}</b><div class="small muted">последний раз ${fmtD(l.date)} (${since} дн.)</div></div>
+      <button class="btn sm line" onclick="remindLost('${c.id}')">Вернуть</button></div>`).join('');
+  h += `<div class="small muted" style="margin-top:16px">Тексты сообщений можно поменять в «Ещё → Настройки».</div>`;
+  return h;
+};
+function remindRepeat(id) { const c = cById(id); writeTo(id, fillTpl(db.settings.tplRepeat, c)); c.remindedAt = today(); save(); render(); }
+function hideDue(id) { cById(id).remindedAt = today(); save(); render(); toast('Напомню снова через 10 дней, если не запишется'); }
+function remindLost(id) { const c = cById(id); writeTo(id, fillTpl(db.settings.tplLost, c)); c.lostMsgAt = today(); save(); render(); }
+function greet(id, d) { const c = cById(id); writeTo(id, fillTpl(db.settings.tplBirthday, c)); c.bdMsg = d; save(); render(); }
+
+/* ---------- ИТОГИ (финансы + аналитика) ---------- */
+function monthAdd(m, n) { const [y, mm] = m.split('-').map(Number); const d = new Date(y, mm - 1 + n, 1); return d.getFullYear() + '-' + pad(d.getMonth() + 1); }
+function monthName(m) { const [y, mm] = m.split('-').map(Number); return MONN[mm - 1] + ' ' + y; }
+function monthStats(m) {
+  const vs = db.visits.filter(v => v.date.startsWith(m));
+  const done = vs.filter(v => v.status === 'done');
+  const rev = done.reduce((a, v) => a + num(v.paid), 0);
+  const exp = db.expenses.filter(e => e.date.startsWith(m)).reduce((a, e) => a + num(e.amount), 0);
+  const uniq = [...new Set(done.map(v => v.clientId))];
+  const firstVisit = {}; db.visits.filter(v => v.status === 'done').sort(byDT).forEach(v => { if (!firstVisit[v.clientId]) firstVisit[v.clientId] = v.date; });
+  const newC = uniq.filter(id => (firstVisit[id] || '').startsWith(m)).length;
+  return { vs, done, rev, exp, uniq, newC, ret: uniq.length - newC, noshow: vs.filter(v => v.status === 'noshow').length, cancel: vs.filter(v => v.status === 'cancelled').length };
+}
+VIEWS.stats = () => {
+  const m = ui.month, s = monthStats(m);
+  $('title').textContent = 'Итоги'; $('subtitle').textContent = 'Деньги и клиенты';
+  let h = `<div class="row between"><button class="btn sm line" onclick="ui.month=monthAdd(ui.month,-1);render()">‹</button><b style="font-size:17px">${monthName(m)}</b><button class="btn sm line" onclick="ui.month=monthAdd(ui.month,1);render()">›</button></div>
+  <div class="kpis" style="margin-top:10px">
+    <div class="kpi"><div class="v">${money(s.rev)}</div><div class="l">выручка</div></div>
+    <div class="kpi"><div class="v">${money(s.exp)}</div><div class="l">расходы</div></div>
+    <div class="kpi"><div class="v" style="color:${s.rev - s.exp >= 0 ? 'var(--ok)' : 'var(--bad)'}">${money(s.rev - s.exp)}</div><div class="l">прибыль</div></div>
+    <div class="kpi"><div class="v">${s.done.length ? money(s.rev / s.done.length) : '—'}</div><div class="l">средний чек</div></div>
+    <div class="kpi"><div class="v">${s.done.length}</div><div class="l">процедур · ${s.uniq.length} ${plural(s.uniq.length, 'клиентка', 'клиентки', 'клиенток')}</div></div>
+    <div class="kpi"><div class="v">${s.newC} / ${s.ret}</div><div class="l">новые / постоянные</div></div>
+    <div class="kpi"><div class="v">${s.noshow}</div><div class="l">не пришли · ${s.cancel} отмен</div></div>
+    <div class="kpi"><div class="v">${s.uniq.length ? Math.round(s.ret / s.uniq.length * 100) + '%' : '—'}</div><div class="l">доля постоянных</div></div>
+  </div>`;
+  // 6 месяцев
+  const ms = []; for (let i = 5; i >= 0; i--) ms.push(monthAdd(m, -i));
+  const data = ms.map(x => { const st = monthStats(x); return [x, st.rev, st.exp]; });
+  const mx = Math.max(1, ...data.map(d => Math.max(d[1], d[2])));
+  h += `<h2>Выручка и расходы за полгода</h2><div class="card"><div class="bars">${data.map(([x, r, e]) => `<div class="b"><div class="col"><i style="height:${r / mx * 100}%" title="${money(r)}"></i><i class="x" style="height:${e / mx * 100}%"></i></div><div>${MONS[+x.slice(5) - 1]}</div></div>`).join('')}</div>
+    <div class="small muted" style="margin-top:6px"><span style="color:var(--accent)">■</span> выручка &nbsp; <span style="color:#e6c3cf">■</span> расходы</div></div>`;
+  // услуги
+  const sv = {}; s.done.forEach(v => { const ids = v.services || []; const tot = ids.reduce((a, id) => a + num(sById(id)?.price), 0) || 1;
+    ids.forEach(id => { const k = sById(id)?.name || '?'; sv[k] = sv[k] || [0, 0]; sv[k][0]++; sv[k][1] += num(v.paid) * num(sById(id)?.price) / tot; }); });
+  const top = Object.entries(sv).sort((a, b) => b[1][1] - a[1][1]); const tmx = Math.max(1, ...top.map(t => t[1][1]));
+  if (top.length) h += `<h2>Популярные услуги</h2><div class="card">${top.map(([k, [n, r]]) => `<div style="margin-bottom:8px"><div class="row between small"><span>${esc(k)} · ${n}</span><b>${money(r)}</b></div><div class="hbar"><i style="width:${r / tmx * 100}%"></i></div></div>`).join('')}</div>`;
+  // база
+  const t = today(); let active = 0, lost = 0, never = 0;
+  db.clients.forEach(c => { const l = lastDone(c.id); if (!l) never++; else if (diffDays(l.date, t) <= db.settings.lostDays || nextPlanned(c.id)) active++; else lost++; });
+  const src = {}; db.clients.forEach(c => { const k = c.source || 'не указано'; src[k] = (src[k] || 0) + 1; });
+  h += `<h2>Клиентская база</h2><div class="kpis"><div class="kpi"><div class="v">${active}</div><div class="l">активные</div></div><div class="kpi"><div class="v" style="color:var(--bad)">${lost}</div><div class="l">потерянные (> ${db.settings.lostDays} дн.)</div></div></div>
+    ${Object.keys(src).length > 1 ? `<div class="card small" style="margin-top:8px"><b>Откуда приходят:</b> ${Object.entries(src).sort((a, b) => b[1] - a[1]).map(([k, n]) => esc(k) + ' — ' + n).join(', ')}</div>` : ''}`;
+  // расходы
+  const ex = db.expenses.filter(e => e.date.startsWith(m)).sort((a, b) => b.date.localeCompare(a.date));
+  const cat = {}; ex.forEach(e => cat[e.cat] = (cat[e.cat] || 0) + num(e.amount));
+  h += `<div class="row between"><h2>Расходы</h2><button class="btn sm" onclick="openExpense()">＋ Расход</button></div>`;
+  if (Object.keys(cat).length) h += `<div class="small muted" style="margin-bottom:6px">${Object.entries(cat).sort((a, b) => b[1] - a[1]).map(([k, v]) => esc(k) + ': ' + money(v)).join(' · ')}</div>`;
+  h += ex.length ? `<div class="card list">${ex.map(e => `<div class="item" onclick="openExpense('${e.id}')"><div><b>${esc(e.cat)}</b><div class="small muted">${fmtD(e.date)}${e.note ? ' · ' + esc(e.note) : ''}</div></div><b>${money(e.amount)}</b></div>`).join('')}</div>` : `<div class="muted small">Расходов в этом месяце нет. Записывайте покупки воска, пасты, расходников — так будет видна реальная прибыль.</div>`;
+  return h;
+};
+function openExpense(id) {
+  const e = id ? db.expenses.find(x => x.id === id) : { date: today(), cat: EXP_CATS[0], amount: '', note: '' };
+  openSheet(id ? 'Расход' : 'Новый расход', `<div class="grid2"><div><label>Дата</label><input id="e_date" type="date" value="${e.date}"></div><div><label>Сумма, ₽</label><input id="e_amt" inputmode="decimal" value="${e.amount}"></div></div>
+    <label>Категория</label><select id="e_cat">${EXP_CATS.map(c => `<option ${c === e.cat ? 'selected' : ''}>${c}</option>`).join('')}</select>
+    <label>Комментарий</label><input id="e_note" value="${esc(e.note)}" placeholder="Например: паста Gloria 1,5 кг">
+    <div class="btns"><button class="btn" onclick="saveExpense('${id || ''}')">Сохранить</button>${id ? `<button class="btn bad" onclick="delExpense('${id}')">Удалить</button>` : ''}</div>`);
+}
+function saveExpense(id) {
+  const d = { date: $('e_date').value || today(), amount: num($('e_amt').value), cat: $('e_cat').value, note: $('e_note').value.trim() };
+  if (!d.amount) return alert('Введите сумму');
+  if (id) Object.assign(db.expenses.find(x => x.id === id), d); else db.expenses.push(Object.assign({ id: uid() }, d));
+  save(); closeSheet(); render();
+}
+function delExpense(id) { if (!confirm('Удалить расход?')) return; db.expenses = db.expenses.filter(e => e.id !== id); save(); closeSheet(); render(); }
+
+/* ---------- ЕЩЁ ---------- */
+VIEWS.more = () => {
+  $('title').textContent = 'Ещё'; $('subtitle').textContent = db.settings.master || '';
+  const it = (ic, t, s, f) => `<div class="item" onclick="${f}"><div><b>${ic} ${t}</b><div class="small muted">${s}</div></div><span class="muted">›</span></div>`;
+  return `<div class="card list menu">
+    ${it('🔗', 'Онлайн-запись', 'Ссылка со свободными окошками для клиентов', 'openBooking()')}
+    ${it('💅', 'Услуги и прайс', db.services.filter(s => s.active).length + ' услуг', 'openServices()')}
+    ${it('👤', 'Настройки', 'Имя, телефон, рабочее время, тексты сообщений', 'openSettings()')}
+    ${it('💾', 'Резервная копия', db.settings.lastBackup ? 'Последняя: ' + fmtD(db.settings.lastBackup) : 'Ещё не делалась!', 'openBackup()')}
+    ${it('🔒', 'PIN-код', db.settings.pin ? 'Включён' : 'Выключен', 'openPin()')}
+    ${it('❓', 'Как пользоваться', 'Короткая памятка', 'openHelp()')}
+  </div>`;
+};
+function openServices() {
+  const list = db.services.slice().sort((a, b) => (b.active - a.active) || a.name.localeCompare(b.name, 'ru'));
+  openSheet('Услуги и прайс', `<div class="card list">${list.map(s => `<div class="item" onclick="openService('${s.id}')"><div><b style="${s.active ? '' : 'color:#aaa'}">${esc(s.name)}</b><div class="small muted">${s.dur} мин · повтор через ${s.rep} дн.${s.active ? '' : ' · скрыта'}</div></div><b>${money(s.price)}</b></div>`).join('')}</div>
+    <div class="btns"><button class="btn wide" onclick="openService()">＋ Добавить услугу</button></div>`);
+}
+function openService(id) {
+  const s = id ? sById(id) : { name: '', price: '', dur: 30, rep: db.settings.defaultRepeat, active: true };
+  openSheet(id ? 'Услуга' : 'Новая услуга', `<label>Название</label><input id="s_name" value="${esc(s.name)}">
+    <div class="grid2"><div><label>Цена, ₽</label><input id="s_price" inputmode="decimal" value="${s.price}"></div><div><label>Длительность, мин</label><input id="s_dur" inputmode="numeric" value="${s.dur}"></div></div>
+    <label>Через сколько дней звать на повтор</label><input id="s_rep" inputmode="numeric" value="${s.rep}">
+    <label class="chk" style="margin-top:12px"><input type="checkbox" id="s_act" ${s.active ? 'checked' : ''}><span>Показывать в записи и онлайн-записи</span></label>
+    <div class="btns"><button class="btn" onclick="saveService('${id || ''}')">Сохранить</button>${id ? `<button class="btn bad" onclick="delService('${id}')">Удалить</button>` : ''}</div>`);
+}
+function saveService(id) {
+  const d = { name: $('s_name').value.trim(), price: num($('s_price').value), dur: num($('s_dur').value) || 30, rep: num($('s_rep').value) || 28, active: $('s_act').checked };
+  if (!d.name) return alert('Введите название');
+  if (id) Object.assign(sById(id), d); else db.services.push(Object.assign({ id: uid() }, d));
+  save(); openServices();
+}
+function delService(id) {
+  if (db.visits.some(v => (v.services || []).includes(id))) { if (!confirm('Услуга есть в истории записей. Лучше скрыть её (снять галочку). Всё равно удалить?')) return; }
+  else if (!confirm('Удалить услугу?')) return;
+  db.services = db.services.filter(s => s.id !== id); save(); openServices();
+}
+function openSettings() {
+  const s = db.settings;
+  openSheet('Настройки', `<label>Ваше имя (для клиентов)</label><input id="st_master" value="${esc(s.master)}" placeholder="Мастер депиляции Анна">
+    <div class="grid2"><div><label>Телефон WhatsApp</label><input id="st_phone" type="tel" value="${esc(s.phone)}" placeholder="+7…"></div><div><label>Telegram</label><input id="st_tg" value="${esc(s.tg)}" placeholder="@ник"></div></div>
+    <label>Адрес кабинета</label><input id="st_addr" value="${esc(s.address)}">
+    <div class="grid2"><div><label>Начало работы</label><input id="st_ws" type="time" value="${s.workStart}"></div><div><label>Конец работы</label><input id="st_we" type="time" value="${s.workEnd}"></div></div>
+    <label>Рабочие дни</label><div class="row wrap">${[1, 2, 3, 4, 5, 6, 0].map(d => `<label class="chk" style="flex:1 0 60px;margin:0"><input type="checkbox" class="wd" value="${d}" ${s.workDays.includes(d) ? 'checked' : ''}>${DOW[d]}</label>`).join('')}</div>
+    <div class="grid2"><div><label>«Потерянная» через, дней</label><input id="st_lost" inputmode="numeric" value="${s.lostDays}"></div><div><label>Шаг онлайн-записи, мин</label><select id="st_step">${[15, 30, 60].map(x => `<option ${x == s.step ? 'selected' : ''}>${x}</option>`).join('')}</select></div></div>
+    <h3>Тексты сообщений</h3><div class="small muted">Можно использовать: {имя}, {дата}, {время}, {услуги}, {недель}, {адрес}</div>
+    <label>Напоминание о записи</label><textarea id="st_t1">${esc(s.tplVisit)}</textarea>
+    <label>Пора на повтор</label><textarea id="st_t2">${esc(s.tplRepeat)}</textarea>
+    <label>Вернуть потерянную клиентку</label><textarea id="st_t3">${esc(s.tplLost)}</textarea>
+    <label>День рождения</label><textarea id="st_t4">${esc(s.tplBirthday)}</textarea>
+    <div class="btns"><button class="btn wide" onclick="saveSettings()">Сохранить</button></div>
+    <div class="btns"><button class="btn bad sm" onclick="wipeAll()">Стереть все данные</button></div>`);
+}
+function saveSettings() {
+  const s = db.settings;
+  Object.assign(s, { master: $('st_master').value.trim(), phone: $('st_phone').value.trim(), tg: $('st_tg').value.trim(), address: $('st_addr').value.trim(),
+    workStart: $('st_ws').value || '10:00', workEnd: $('st_we').value || '20:00', lostDays: num($('st_lost').value) || 60, step: num($('st_step').value) || 30,
+    workDays: [...document.querySelectorAll('.wd:checked')].map(i => +i.value),
+    tplVisit: $('st_t1').value, tplRepeat: $('st_t2').value, tplLost: $('st_t3').value, tplBirthday: $('st_t4').value });
+  save(); closeSheet(); render(); toast('Сохранено');
+}
+function wipeAll() {
+  if (!confirm('Стереть ВСЕ данные: клиентов, записи, расходы? Это нельзя отменить (если нет резервной копии).')) return;
+  if (prompt('Для подтверждения напишите слово УДАЛИТЬ') !== 'УДАЛИТЬ') return;
+  db = defaultDb(); save(); closeSheet(); render();
+}
+
+/* ---------- Онлайн-запись ---------- */
+function cut(ints, a, b) { const r = []; ints.forEach(([x, y]) => { if (b <= x || a >= y) r.push([x, y]); else { if (a > x) r.push([x, a]); if (b < y) r.push([b, y]); } }); return r; }
+function freeSlots(days) {
+  const s = db.settings, t = today(), res = []; const n = new Date(); const nowM = n.getHours() * 60 + n.getMinutes();
+  for (let i = 0; i < days; i++) {
+    const d = addDays(t, i); if (isOff(d)) continue;
+    let free = [[t2m(s.workStart), t2m(s.workEnd)]];
+    if (i === 0) free = cut(free, 0, Math.ceil((nowM + 60) / 30) * 30);
+    db.visits.filter(v => v.date === d && (v.status === 'planned' || v.status === 'done')).forEach(v => { free = cut(free, t2m(v.time), t2m(v.time) + (v.dur || 30)); });
+    free = free.filter(([a, b]) => b - a >= 15);
+    if (free.length) res.push([d, free]);
+  }
+  return res;
+}
+function b64e(str) { return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+function bookingLink() {
+  const s = db.settings;
+  const payload = { m: s.master, p: normPhone(s.phone), t: s.tg.replace(/^@/, ''), a: s.address, g: today(), st: s.step || 30,
+    s: db.services.filter(x => x.active).map(x => [x.id, x.name, x.price, x.dur]), f: freeSlots(s.bookDays || 14) };
+  return new URL('zapis.html', location.href).href + '#' + b64e(JSON.stringify(payload));
+}
+function openBooking() {
+  const s = db.settings;
+  if (!s.phone && !s.tg) { openSettings(); return toast('Сначала укажите телефон WhatsApp или Telegram'); }
+  const fs = freeSlots(s.bookDays || 14);
+  const link = bookingLink();
+  const local = location.protocol === 'file:' || /^(localhost|127\.|192\.168\.|10\.)/.test(location.hostname);
+  openSheet('Онлайн-запись', `<div class="small">Ссылка показывает клиенткам ваши <b>свободные окошки</b> на ближайшие дни. Клиентка выбирает услугу и время — и заявка приходит вам в WhatsApp/Telegram. Потом нажмите <b>«📋 Заявка»</b> на экране «Записи» и вставьте сообщение — запись создастся сама.</div>
+    ${local ? '<div class="note">⚠ Сейчас CRM открыта с компьютера/локально — у клиенток такая ссылка не откроется. Пользуйтесь онлайн-записью из версии на GitHub Pages (см. инструкцию).</div>' : ''}
+    <label>Показывать дней вперёд</label><select id="bdays" onchange="db.settings.bookDays=+this.value;save();openBooking()">${[7, 14, 21, 30].map(x => `<option ${x == (s.bookDays || 14) ? 'selected' : ''}>${x}</option>`).join('')}</select>
+    <div class="card small" style="margin-top:10px">Свободных дней: <b>${fs.length}</b>${fs.length ? ' (с ' + fmtD(fs[0][0]) + ')' : ''}<br><span class="muted">Окошки берутся из календаря на момент отправки. Если расписание поменялось — просто отправьте ссылку заново.</span></div>
+    <div class="btns"><button class="btn" onclick="shareBooking()">📤 Поделиться ссылкой</button><button class="btn line" onclick="copyText(bookingLink());toast('Ссылка скопирована')">Копировать</button></div>
+    <div class="btns"><a class="btn ghost" href="${esc(link)}" target="_blank">Посмотреть, как видит клиент</a></div>`);
+}
+async function shareBooking() {
+  const url = bookingLink(), text = 'Запишитесь онлайн — свободные окошки здесь 🌸';
+  if (navigator.share) { try { await navigator.share({ title: 'Онлайн-запись', text, url }); return; } catch (e) { if (e.name === 'AbortError') return; } }
+  copyText(text + '\n' + url); toast('Ссылка скопирована — вставьте её в сторис, профиль или чат');
+}
+
+/* ---------- Резервная копия ---------- */
+function openBackup() {
+  openSheet('Резервная копия', `<div class="small">Все данные хранятся <b>только в этом телефоне</b>, в браузере. Если очистить данные браузера или потерять телефон — без копии они пропадут.<br><br>
+    Раз в неделю нажимайте «Сохранить копию» и отправляйте файл себе в Telegram («Избранное») или на Google Диск.</div>
+    <div class="btns"><button class="btn" onclick="exportBackup()">💾 Сохранить копию</button></div>
+    <h3>Восстановить из копии</h3><div class="small muted">Выберите файл crm-depil-….json. Текущие данные будут заменены.</div>
+    <input type="file" id="impf" accept=".json,.txt,application/json,text/plain" style="margin-top:8px" onchange="importBackup(this.files[0])">
+    <h3>Таблица клиентов</h3><div class="btns"><button class="btn line sm" onclick="exportCsv()">Скачать клиентов (Excel/CSV)</button></div>`);
+}
+function markBackup() { db.settings.lastBackup = today(); save(); render(); toast('Копия сохранена'); }
+async function exportBackup() {
+  const data = JSON.stringify(db), name = 'crm-depil-' + today() + '.json';
+  for (const type of ['application/json', 'text/plain']) {
+    const file = new File([data], type === 'text/plain' ? name.replace('.json', '.txt') : name, { type });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: 'Копия CRM ' + today() }); markBackup(); return; }
+      catch (e) { if (e.name === 'AbortError') return; }
+    }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' })); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); markBackup();
+}
+function importBackup(f) {
+  if (!f) return; const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!Array.isArray(d.clients) || !Array.isArray(d.visits)) throw new Error('это не файл копии CRM');
+      if (!confirm(`В копии: ${d.clients.length} клиентов, ${d.visits.length} записей. Заменить текущие данные?`)) return;
+      localStorage.setItem(KEY, JSON.stringify(d)); db = load(); save(); closeSheet(); render(); toast('Данные восстановлены');
+    } catch (e) { alert('Не получилось прочитать файл: ' + e.message); }
+  };
+  r.readAsText(f);
+}
+function exportCsv() {
+  const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const rows = [['Имя', 'Телефон', 'Telegram', 'День рождения', 'Источник', 'Кожа', 'Волосы', 'Противопоказания', 'Аллергии', 'Заметки', 'Визитов', 'Последний визит', 'Потратила']];
+  db.clients.forEach(c => { const d = db.visits.filter(v => v.clientId === c.id && v.status === 'done'); const l = lastDone(c.id);
+    rows.push([c.name, c.phone, c.tg, c.birthday, c.source, c.skin, c.hair, c.contra, c.allergies, c.notes, d.length, l ? l.date : '', d.reduce((a, v) => a + num(v.paid), 0)]); });
+  const csv = '\ufeff' + rows.map(r => r.map(q).join(';')).join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'клиенты-' + today() + '.csv'; a.click();
+}
+
+/* ---------- PIN ---------- */
+function hash(s) { let h = 5381; for (const ch of 'depil:' + s) h = ((h << 5) + h + ch.charCodeAt(0)) | 0; return String(h); }
+function openPin() {
+  openSheet('PIN-код', `<div class="small">PIN закрывает CRM от чужих глаз, если телефон возьмёт кто-то другой. Запрашивается при открытии и после 5 минут без дела.</div>
+    <label>Новый PIN (4–8 цифр)</label><input id="pin1" type="password" inputmode="numeric" maxlength="8">
+    <div class="btns"><button class="btn" onclick="setPin()">Установить</button>${db.settings.pin ? '<button class="btn bad" onclick="db.settings.pin=\'\';save();closeSheet();render();toast(\'PIN выключен\')">Выключить PIN</button>' : ''}</div>`);
+}
+function setPin() { const p = $('pin1').value.trim(); if (!/^\d{4,8}$/.test(p)) return alert('PIN — от 4 до 8 цифр'); db.settings.pin = hash(p); save(); closeSheet(); render(); toast('PIN установлен. Не забудьте его!'); }
+function lock() { if (!db.settings.pin) return; $('lock').style.display = 'flex'; $('lockIn').value = ''; setTimeout(() => $('lockIn').focus(), 100); }
+function tryUnlock() { if (hash($('lockIn').value) === db.settings.pin) $('lock').style.display = 'none'; else { $('lockIn').value = ''; toast('Неверный PIN'); } }
+$('lockIn').addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
+let hiddenAt = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) hiddenAt = Date.now();
+  else { if (hiddenAt && Date.now() - hiddenAt > 5 * 60e3) lock(); if (ui.tab !== 'more' && $('sheet').style.display !== 'block') render(); }
+});
+
+/* ---------- Помощь и пример ---------- */
+function openHelp() {
+  openSheet('Как пользоваться', `<div class="small">
+  <p><b>📅 Записи</b> — календарь по неделям. Пунктирные блоки — свободное время: нажмите, чтобы записать клиентку. После процедуры откройте запись и нажмите <b>«Выполнено»</b> — сумма попадёт в выручку, а CRM запомнит, когда звать на повтор.</p>
+  <p><b>👩 Клиенты</b> — карточки с телефоном, типом кожи и волос, противопоказаниями, аллергиями и историей процедур. Аллергии и противопоказания подсвечиваются красным в каждой записи.</p>
+  <p><b>🔔 Напомнить</b> — кому написать сегодня: напоминания о завтрашних записях, кому пора на повтор (по умолчанию через 4 недели), дни рождения и «потерянные» клиентки. Кнопка открывает WhatsApp с готовым текстом.</p>
+  <p><b>📊 Итоги</b> — выручка, расходы, прибыль, средний чек, новые и постоянные клиентки, популярные услуги. Расходы (паста, воск, расходники) добавляйте здесь.</p>
+  <p><b>🔗 Онлайн-запись</b> — «Ещё → Онлайн-запись» → поделитесь ссылкой. Когда придёт заявка, скопируйте сообщение и нажмите «📋 Заявка» на экране «Записи».</p>
+  <p><b>💾 Раз в неделю</b> делайте резервную копию и отправляйте файл себе в Telegram.</p></div>`);
+}
+function loadDemo() {
+  if (db.clients.length && !confirm('Добавить пример данных к текущим?')) return;
+  const names = ['Анна Смирнова', 'Мария Иванова', 'Екатерина Козлова', 'Ольга Новикова', 'Дарья Морозова', 'Ирина Волкова', 'Светлана Лебедева', 'Юлия Соколова', 'Наталья Попова', 'Алина Кузнецова'];
+  const t = today(); const S = db.services;
+  names.forEach((name, i) => {
+    const c = { id: uid(), name, phone: '+7 900 000-00-' + pad(10 + i), source: SOURCES[i % 6], skin: ['Нормальная', 'Чувствительная', 'Сухая'][i % 3], hair: ['Тёмные, жёсткие', 'Светлые, тонкие'][i % 2],
+      allergies: i === 2 ? 'Канифоль (воск не подходит!)' : '', contra: i === 5 ? 'Варикоз на голенях' : '', notes: i === 0 ? 'Низкий болевой порог, любит тальк' : '', birthday: i === 1 ? '1994' + addDays(t, 3).slice(4) : '', createdAt: addDays(t, -150) };
+    db.clients.push(c);
+    const svc = [S[(i * 3) % S.length], S[(i + 1) % S.length]].filter((x, k, a) => a.indexOf(x) === k);
+    const gap = 24 + (i % 4) * 4; let d = addDays(t, -(i < 7 ? 20 + i * 4 : 75 + i * 3)), k = 0;
+    const visits = [];
+    while (k < 5 && d > addDays(t, -170)) { visits.unshift(d); d = addDays(d, -gap); k++; }
+    visits.forEach(dt => { const price = svc.reduce((a, s) => a + s.price, 0);
+      db.visits.push({ id: uid(), clientId: c.id, date: dt, time: m2t(600 + (i % 8) * 60), dur: svc.reduce((a, s) => a + s.dur, 0), services: svc.map(s => s.id), title: svc.map(s => s.name).join(' + '),
+        price, paid: price, method: c.allergies ? 'Шугаринг' : METHODS[i % 2], status: k-- && Math.random() < .06 ? 'noshow' : 'done', note: '' }); });
+    if (i % 3 === 0) { const nd = addDays(t, 1 + i % 5); db.visits.push({ id: uid(), clientId: c.id, date: nd, time: m2t(660 + i * 30), dur: svc[0].dur, services: [svc[0].id], title: svc[0].name, price: svc[0].price, paid: 0, method: 'Шугаринг', status: 'planned', note: '' }); }
+  });
+  for (let m = 0; m < 6; m++) { const md = monthAdd(t.slice(0, 7), -m) + '-05'; db.expenses.push({ id: uid(), date: md, cat: 'Паста / сахар', amount: 2400, note: 'паста 1,5 кг' }, { id: uid(), date: md.replace('-05', '-12'), cat: 'Расходники', amount: 900, note: 'бумага, перчатки, тальк' }, { id: uid(), date: md.replace('-05', '-01'), cat: 'Аренда', amount: 8000, note: '' }); }
+  if (!db.settings.master) Object.assign(db.settings, { master: 'Мастер депиляции', phone: '+7 900 000-00-00' });
+  save(); render(); toast('Пример загружен. Удалить его: Ещё → Настройки → Стереть все данные');
+}
+
+/* ---------- Старт ---------- */
+render(); lock();
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
